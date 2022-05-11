@@ -37,7 +37,7 @@ interface Boundaries {
     right: number;
 }
 
-interface GameSettings {
+export interface GameSettings {
     updateSeconds: number;
 }
 

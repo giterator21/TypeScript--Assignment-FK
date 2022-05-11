@@ -15,8 +15,13 @@ export class TransferState {
     }
 
     update(play: GameBasics) {
-        this.fontSize -= 1;
-        this.fontColor -= 1.5;
+        this.fontSize -= 1; // die definierte "fontSize" wird kontinuierlich verringert, so entsteht die Animation
+        this.fontColor -= 1.5; // die fefinierte "fontColor" wird kontinuierlich um den Wert 1 verringert, so entsteht ein Verlauf
+        if (this.fontSize < 1) {
+            // wenn die Bedingung erfüllt wird, also die Schriftanimation soweit durchgeführt wurde, 
+            // dass der Schriftzug nichtmehr sichtbar ist, wird in von der TransferState in den InGameState gewechselt
+            play.goToState(new InGameState(play.setting, this.level));
+          }
     }
 
     draw(play: GameBasics) {
