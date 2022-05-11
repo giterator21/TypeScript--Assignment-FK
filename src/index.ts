@@ -27,6 +27,10 @@ interface Boundaries {
     right: number;
 }
 
+interface GameSettings {
+    updateSeconds: number;
+}
+
 class GameBasics {
     public canvas: HTMLCanvasElement;
     public width: number;
@@ -51,6 +55,7 @@ class GameBasics {
 
         //Standardeinstellungen des Spiels 
         this.setting = {
+            updateSeconds: 1 / 60, // 60 FPS
         };
         // Hier wird der aktuelle Zustand des Spiels zwischengespeichert (Pause, Start, inGame etc.)
         this.stateContainer = [];
@@ -87,4 +92,36 @@ class GameBasics {
     popState() {
         this.stateContainer.pop();
     }
+
+    start() {
+    
+        setInterval(function () {
+            gameLoop(play);
+        }, this.setting.updateSeconds * 1000); 
+        // Wir wollen die GameLoop Funktion alles 16 Millisekunden aufrufen und anschließend in den OpeningState wechseln
+        this.goToState(new OpeningState());
+    }    
+
 }
+
+function gameLoop(play: GameBasics) {
+    let presentState = play.presentState();
+
+    if (presentState) {
+        //Die Position der Objekte wird geupdatet, je nachdem in welchem Status sich das Spiel aktuell befindet
+        if (
+            presentState instanceof InGameState ||
+            presentState instanceof TransferState
+        ) {
+            presentState.update(play);
+        }
+        //Die Objekte werden mit einer draw-Funktion auf dem Canvas dargestellt
+        if (presentState.draw) {
+            presentState.draw(play);
+        }
+    }
+}
+
+const play = new GameBasics(canvas);
+
+play.start();
