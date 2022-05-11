@@ -10,7 +10,7 @@ const ctx = canvas.getContext("2d");
 
 if (!ctx) {
     throw new Error("cannot initialize canvas 2d");
-  }
+}
 
 
 //Funktion für Automatische Größen-Anpassung des Canvas
@@ -53,6 +53,9 @@ export class GameBasics {
     public playBoundaries: Boundaries;
     public setting: GameSettings;
     public stateContainer: State[];
+    public level: number;
+    public score: number;
+    public shields: number;
 
     constructor(canvas: HTMLCanvasElement, public ctx: CanvasRenderingContext2D) {
         this.canvas = canvas;
@@ -66,6 +69,10 @@ export class GameBasics {
             left: 100, // linker Abstand vom Linken Rand des Canvas 
             right: 800, // rechter Abstand vom linken Rand des Canvas
         };
+        // Anfangswerte, zu Beginn des Spiels 
+        this.level = 1;
+        this.score = 0;
+        this.shields = 2;
 
         //Standardeinstellungen des Spiels 
         this.setting = {

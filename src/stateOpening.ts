@@ -1,4 +1,5 @@
 import {GameBasics} from "./index";
+import { TransferState } from "./stateTransfer";
 
 export class OpeningState{
     constructor() {}
