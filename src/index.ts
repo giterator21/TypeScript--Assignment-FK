@@ -56,6 +56,7 @@ export class GameBasics {
     public level: number;
     public score: number;
     public shields: number;
+    public pressedKeys: { [key: number]: boolean };
 
     constructor(canvas: HTMLCanvasElement, public ctx: CanvasRenderingContext2D) {
         this.canvas = canvas;
@@ -70,9 +71,9 @@ export class GameBasics {
             right: 800, // rechter Abstand vom linken Rand des Canvas
         };
         // Anfangswerte, zu Beginn des Spiels 
-        this.level = 1;
-        this.score = 0;
-        this.shields = 2;
+        this.level = 1; // Das Anfanglevel ist 1 
+        this.score = 0; // Der Score startet bei Null 
+        this.shields = 2; // Der Falcon hat zwei Schilde, kann also insgesamt 3 Treffer verkraften
 
         //Standardeinstellungen des Spiels 
         this.setting = {
@@ -80,7 +81,11 @@ export class GameBasics {
         };
         // Hier wird der aktuelle Zustand des Spiels zwischengespeichert (Pause, Start, inGame etc.)
         this.stateContainer = [];
+         // Zwischenspeicher für gedrückte Tasten innerhalb eines "{}" abstrakten Datentyps, Tasten werden als Integer gespeichert
+         this.pressedKeys = {};
+
     }
+    
 
     //  Gibt den aktuellen Status des Spiels wieder, in dem sich das Spiel gerade befindet. Gibt immer den obersten Wert aus dem stateContainer als return-Wert zurück.
     presentState() {

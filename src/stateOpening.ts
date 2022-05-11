@@ -50,12 +50,12 @@ export class OpeningState{
         );
       }
       keyDown(play: GameBasics, keyboardCode: number) {
-        if (keyboardCode === 32) {
+        if (keyboardCode === 32) { 
           //User drückt Leertaste
           play.level = 1;
           play.score = 0;
           play.shields = 2;
-          play.goToState(new TransferState(play.level));
+          play.goToState(new TransferState(play.level)); // muss erst level von Transfer State bekommen
         }
       }
 }
