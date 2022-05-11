@@ -128,6 +128,28 @@ export class GameBasics {
         this.goToState(new OpeningState());
     }
 
+    
+  // Sagt dem Spiel, dass eine Taste gedrückt ist
+  keyDown(keyboardCode: number) {
+    // speichert die gedrückte Taste in "pressed Keys" zwischen
+    this.pressedKeys[keyboardCode] = true;
+    //es wird geprüft, ob der akutelle Status des Spiels eine eigene keyDown/keyUp-Funktion hat und ruft diese im Falle des Tastendrückens auf
+    let pos = this.presentState();
+    if (
+      pos &&
+      (pos instanceof InGameState ||
+        pos instanceof OpeningState)
+    ) {
+      pos.keyDown(this, keyboardCode);
+    }
+  }
+
+    // Sagt dem Spiel, wenn eine Taste wieder losgelassen wird
+    keyUp(keyboardCode: number) {
+        //die losgelassene Taste aus "pressedKeys" löschen
+        delete this.pressedKeys[keyboardCode];
+      }
+
 }
 
 function gameLoop(play: GameBasics) {
@@ -147,6 +169,22 @@ function gameLoop(play: GameBasics) {
         }
     }
 }
+
+//Event Listener für keyUp und keyDown in Abhängigkeit der gedrückten Tasten und je nach Browser-Support
+
+window.addEventListener("keydown", (e: KeyboardEvent) => {
+    const keyboardCode = e.which || e.keyCode; // Je nach Browsersupport wird "which" oder "keyCode" verwendet
+    if (keyboardCode == 37 || keyboardCode == 39 || keyboardCode == 32) {
+      e.preventDefault();
+    } //Leertaste/Links/Rechts// (32/37/29) KeyboardCode wird als Datentyp Integer zwischengespeichert
+    play.keyDown(keyboardCode);
+  });
+  
+  window.addEventListener("keyup", function (e) {
+    const keyboardCode = e.which || e.keyCode; 
+    play.keyUp(keyboardCode);
+  });
+  
 
 const play = new GameBasics(canvas, ctx);
 
