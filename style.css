@@ -13,3 +13,8 @@ body {
     background-repeat: no-repeat;
     background-size: cover; /* Hintergrund-Bild hinter dem Spielfeld soll den Screen auf Full-Size abdecken, deshalb "cover" */
 }
+
+@font-face {
+    font-family: Starjhol;
+    src: url(../Fonts/Starjhol.ttf);
+}
