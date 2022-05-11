@@ -1,7 +1,17 @@
+import { InGameState } from "./stateInGame";
+import { OpeningState } from "./stateOpening";
+import { TransferState } from "./stateTransfer";
+
 // Hier wird auf das Canvas "gameCanvas" aus der CSS-Datei über "getElementById" in TypeScript zugegriffen
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 canvas.width = 900;
 canvas.height = 750;
+const ctx = canvas.getContext("2d");
+
+if (!ctx) {
+    throw new Error("cannot initialize canvas 2d");
+  }
+
 
 //Funktion für Automatische Größen-Anpassung des Canvas
 function resize() {
@@ -31,16 +41,20 @@ interface GameSettings {
     updateSeconds: number;
 }
 
-class GameBasics {
+type State =
+    | TransferState
+    | InGameState
+    | OpeningState;
+
+export class GameBasics {
     public canvas: HTMLCanvasElement;
     public width: number;
     public height: number;
     public playBoundaries: Boundaries;
-    public setting: any;
-    public stateContainer: any;
+    public setting: GameSettings;
+    public stateContainer: State[];
 
-
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, public ctx: CanvasRenderingContext2D) {
         this.canvas = canvas;
         this.width = canvas.width;
         this.height = canvas.height;
@@ -70,14 +84,14 @@ class GameBasics {
     }
 
     // Das Spiel in den gewünschten Zustand versetzen
-    goToState(state: any) {
+    goToState(state: State) {
         // Sollten das Spiel bereits in einen Status versetzt sein, dann kann der StateContainer gelöscht werden.
         if (this.presentState()) {
             this.stateContainer.length = 0;
         }
         // Wenn wir ein "entry" in einem Status finden, wird das Spiel in den zugehörigen Status versetzt.
         if (state instanceof InGameState) {
-            state.entry(play);
+            state.entry(play); // muss noch in inGame geschrieben werden!!!
         }
         // Der aktuelle Status, der aufgerufen wird, wird über eine push-Methode in den stateContainer (Array) gepushed
         this.stateContainer.push(state);
@@ -94,13 +108,13 @@ class GameBasics {
     }
 
     start() {
-    
+
         setInterval(function () {
             gameLoop(play);
-        }, this.setting.updateSeconds * 1000); 
+        }, this.setting.updateSeconds * 1000);
         // Wir wollen die GameLoop Funktion alles 16 Millisekunden aufrufen und anschließend in den OpeningState wechseln
         this.goToState(new OpeningState());
-    }    
+    }
 
 }
 
@@ -113,15 +127,15 @@ function gameLoop(play: GameBasics) {
             presentState instanceof InGameState ||
             presentState instanceof TransferState
         ) {
-            presentState.update(play);
+            presentState.update(play); // muss noch in inGame geschrieben werden!!!
         }
         //Die Objekte werden mit einer draw-Funktion auf dem Canvas dargestellt
-        if (presentState.draw) {
+        if (presentState.draw) { // muss noch in Transfer geschrieben werden!!!
             presentState.draw(play);
         }
     }
 }
 
-const play = new GameBasics(canvas);
+const play = new GameBasics(canvas, ctx);
 
 play.start();
