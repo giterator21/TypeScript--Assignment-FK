@@ -40,6 +40,8 @@ interface Boundaries {
 export interface GameSettings {
     updateSeconds: number;
     falconSpeed: number;
+    bulletSpeed: number; 
+    bulletMaxFrequency: number;
 }
 
 type State =
@@ -80,6 +82,8 @@ export class GameBasics {
         this.setting = {
             updateSeconds: 1 / 60, // 60 FPS
             falconSpeed:200,
+            bulletSpeed:130, // Geschwindigkeit der Kugel
+            bulletMaxFrequency:500, // wie schnell der Falcon nacheinander feuern kann
         };
         // Hier wird der aktuelle Zustand des Spiels zwischengespeichert (Pause, Start, inGame etc.)
         this.stateContainer = [];
