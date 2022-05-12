@@ -8,6 +8,9 @@ export class InGameState {
     public object: GameObjects | null = null;
     public falcon: Falcon | null;
     public falcon_image: HTMLImageElement | null = null;
+    public falconSpeed: number = 0;
+    public upSec: number = 0;
+
 
 
     constructor(setting: GameSettings, level: number) {
@@ -20,6 +23,8 @@ export class InGameState {
     entry(play: GameBasics) {
         this.falcon_image = new Image();
         this.object = new GameObjects();
+        this.upSec = this.setting.updateSeconds;
+        this.falconSpeed = this.setting.falconSpeed;
         this.falcon = this.object.falcon(
             play.width / 2,
             play.playBoundaries.bottom,
@@ -28,6 +33,20 @@ export class InGameState {
     }
 
     update(play: GameBasics) {
+      const falcon = this.falcon;
+      const falconSpeed = this.falconSpeed;
+      const upSec = this.setting.updateSeconds;
+      if (!falcon) {
+        return;
+      }
+      //Tastatur-Eingaben
+
+    if (play.pressedKeys[37]) {
+      falcon.x -= falconSpeed * upSec;
+    }
+    if (play.pressedKeys[39]) {
+      falcon.x += falconSpeed * upSec;
+    }
     }
 
     draw(play: GameBasics) {
@@ -42,7 +61,7 @@ export class InGameState {
             );
     }
 
-    keyDown(play: GameBasics) {
+    keyDown(play: GameBasics, keyboardCode: number) {
 
     }
 }

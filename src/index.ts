@@ -39,6 +39,7 @@ interface Boundaries {
 
 export interface GameSettings {
     updateSeconds: number;
+    falconSpeed: number;
 }
 
 type State =
@@ -78,6 +79,7 @@ export class GameBasics {
         //Standardeinstellungen des Spiels 
         this.setting = {
             updateSeconds: 1 / 60, // 60 FPS
+            falconSpeed:200,
         };
         // Hier wird der aktuelle Zustand des Spiels zwischengespeichert (Pause, Start, inGame etc.)
         this.stateContainer = [];
