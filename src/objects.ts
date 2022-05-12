@@ -22,6 +22,11 @@ export interface Falcon {
     column: number;
     tiefighter_image: HTMLImageElement;
   }
+  export interface Bomb {
+    x: number;
+    y: number;
+  }
+  
 
 export class Objects {
     constructor() {}
@@ -42,5 +47,8 @@ export class Objects {
     ): Tiefighter {
       tiefighter_image.src = "images/tie-fighter.png";
       return { x, y, line, width: 62, height: 66, column, tiefighter_image };
+    }
+    bomb(x: number, y: number): Bomb {
+      return { x, y };
     }
 }

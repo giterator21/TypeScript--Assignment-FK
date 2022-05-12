@@ -46,6 +46,9 @@ export interface GameSettings {
     tiefighterColumns: number;
     tiefighterSpeed: number;
     tiefighterSinkingValue: number;
+    bombSpeed: number; 
+    bombFrequency: number;
+    pointsPerTIE: number;
 
 }
 
@@ -93,6 +96,9 @@ export class GameBasics {
             tiefighterColumns: 8, //Anzahl der Tiefighter, die sich jeweils in einer Reihe befinden
             tiefighterSpeed: 35, // Geschwindigkeit, mit der sich die Tiefighter bewegen sollen
             tiefighterSinkingValue: 30, // Geschwindigkeit, mit der die Tiefighter sinken sollen = 30 Pixel
+            bombSpeed: 75, //Bomben Abwurf-Geschwindigkeit
+            bombFrequency: 0.05, //Bomben-Abwurf-Frequenz
+            pointsPerTIE: 25, // Die Punkte, um die der Score hochgezählt wird, wenn ein Tie-fighter abgeschossen wird
         };
         // Hier wird der aktuelle Zustand des Spiels zwischengespeichert (Pause, Start, inGame etc.)
         this.stateContainer = [];

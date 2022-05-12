@@ -1,6 +1,6 @@
 /// --- stateInGame --- ///
 import { GameBasics, GameSettings } from "./index";
-import { Falcon, Bullet, Objects as GameObjects, Tiefighter } from "./objects";
+import { Falcon, Bullet, Bomb, Objects as GameObjects, Tiefighter } from "./objects";
 
 export class InGameState {
   public setting: GameSettings;
@@ -20,6 +20,11 @@ export class InGameState {
   public tiefightersAreSinking: boolean = false;
   public tiefighterPresentSinkingValue: number = 0;
   public turnAround: number = 1;
+  public bombs: Bomb[];
+  public bombSpeed: number = 0;
+  public bombFrequency: number = 0;
+
+
 
 
 
@@ -33,6 +38,8 @@ export class InGameState {
     //dann mit splice gelöscht, wenn sie einen Tie-Fighter treffen oder den Rand des Canvas erreichen
     this.lastBulletTime = null;
     this.tiefighters = []; //die Tiefighter werden wie die Bullets in einem abstrakten Datentyp (array) gespeichert
+    this.bombs = []; // die Tie-fighter Bomben werden wie die anderen Objekte auch in einem Array gespeichert
+
   }
 
   entry(play: GameBasics) {
@@ -55,6 +62,10 @@ export class InGameState {
     let presentLevel = this.level < 11 ? this.level : 10; // wir können nicht über Level 10 gehen
     // 1. Tie-Fighter Geschwindigkeit
     this.tiefighterSpeed = this.setting.tiefighterSpeed + presentLevel * 7; //Level1: 35 + (1*7) = 42, Level2: 42 + (2*7) = 59; .....
+    // 2. Bomben Fall-Geschwindigkeit
+    this.bombSpeed = this.setting.bombSpeed + presentLevel * 10; // Die Geschwindigkeit steigt mit dem Level an
+    // 3. Bomben-Abwurf Frequenz
+    this.bombFrequency = this.setting.bombFrequency + presentLevel * 0.05; // Die Abwurf-Frequenz steigt ebenfalls mit dem Level an
     // Erstellen der Tie-Fighter-Flotte
     const lines = this.setting.tiefighterLines;
     const columns = this.setting.tiefighterColumns;
@@ -118,8 +129,8 @@ export class InGameState {
         this.tiefighterSpeed * upSec * this.turnAround * this.horizontalMoving;
       let fresh_y =
         tiefighter.y + this.tiefighterSpeed * upSec * this.verticalMoving;
-        // wenn die x-Koordinate die rechte oder linke Seite des aktive Spielfelds berührt, wird die vertikale Bewegung auf 1 / true 
-        // gesetzt und die horizontale auf 0 / false, also Bewegen sich die Tiefighter nun vertikal und nicht mehr horizontal
+      // wenn die x-Koordinate die rechte oder linke Seite des aktive Spielfelds berührt, wird die vertikale Bewegung auf 1 / true 
+      // gesetzt und die horizontale auf 0 / false, also Bewegen sich die Tiefighter nun vertikal und nicht mehr horizontal
       if (
         fresh_x > play.playBoundaries.right ||
         fresh_x < play.playBoundaries.left
@@ -149,6 +160,46 @@ export class InGameState {
         this.tiefighterPresentSinkingValue = 0; // wird resettet und auf 0 reinitialisiert
       }
     }
+    // TIE-Fighter Bombenabwurf
+    // Die Ties werden sortiert. Hier wird gefiltert, welcher Tie Fighter zur aktuellen Zeit der letzte einer Reihe ist, da nur dieser Bomben abwerfen können soll
+    const frontLineTIEs = []; // Die untersten Tie Fighter einer jeden Reihe werden in einem Array gespeichert
+    for (let i = 0; i < this.tiefighters.length; i++) {
+      let tiefighter = this.tiefighters[i];
+      // Updaten, welcher Tie-fighter gerade tatsächlich an der letzten Stelle einer Reihe ist, indem geprüft wird ob der 
+      // Line-Paramter des betrachteten Tiefighters gerade der größte, also der unterste, einer Reihe ist, dieser soll
+      // nämlich die Bomben abwerfen können und wird deshalb im array gespeichert
+      // es kann auch sein das kein Tiefighter mehr vorhanden ist, wenn alle einer Reihe abgeschossen wurden
+      if (
+        !frontLineTIEs[tiefighter.column] ||
+        frontLineTIEs[tiefighter.column].line < tiefighter.line
+      ) {
+        frontLineTIEs[tiefighter.column] = tiefighter;
+      }
+    }
+    // Die Möglichkeit des Bombenabwurfs wird eingeräumt
+    for (let i = 0; i < this.setting.tiefighterColumns; i++) {
+      let tiefighter = frontLineTIEs[i];
+      if (!tiefighter) continue;
+      let chance = this.bombFrequency * upSec;
+      this.object = new GameObjects();
+      if (chance > Math.random()) {
+        // Erstellt ein Bomben-Objekt und packt es in das Bomben-Array
+        this.bombs.push(
+          this.object.bomb(tiefighter.x, tiefighter.y + tiefighter.height / 2)
+        );
+      }
+    }
+    //Bomben sollen sich bewegen
+    for (let i = 0; i < this.bombs.length; i++) {
+      let bomb = this.bombs[i];
+      bomb.y += upSec * this.bombSpeed;
+      //Sollte eine Bombe aus dem Canvas fallen, verschwindet sie
+      if (bomb.y > play.height) {
+        this.bombs.splice(i--, 1);
+      }
+    }
+
+
   }
   shoot(play: GameBasics) {
     if (
@@ -178,21 +229,30 @@ export class InGameState {
       this.falcon.x - this.falcon.width / 2,
       this.falcon.y - this.falcon.height / 2
     );
-    //Geschosse werden erstellt & sichtbar gemacht
+    //Geschosse werden erstellt & angezeigt
     play.ctx.fillStyle = "#ff0000";
     for (let i = 0; i < this.bullets.length; i++) {
       let bullet = this.bullets[i];
       play.ctx.fillRect(bullet.x, bullet.y - 6, 2, 6);
     }
-    // Tie-Fighter werden erstellt
+    // Tie-Fighter werden erstellt & angezeigt 
     for (let i = 0; i < this.tiefighters.length; i++) {
       let tiefighter = this.tiefighters[i]; //4 Reihen horizontal, 8 Reihen vertikal = 32 Tie-Fighters
       play.ctx.drawImage(
         this.tiefighter_image,
         tiefighter.x - tiefighter.width / 2, //hier wird wieder der Mittelpunkt des jeweiligen Tiefighter-Objekts ausgerechnet 
-        tiefighter.y - tiefighter.height / 2
+        tiefighter.y - tiefighter.height / 2  //als Ausgangspunkt dient in der Regel immmer die linke obere Ecke
+        //,weshalb man jeweils die Hälfte von Höhe und Breite von x und y Startpunkten des Tie-Fighters abzieht, um den Mittelpunkt zu erhalten
+        //Dies macht man um immer die tatsächliche Mitte als Ausgangspunkt für Kalkulationen zu haben
       );
     }
+    // Tie-Fighter-Bomben erstellen
+    play.ctx.fillStyle = "#7fff00";
+    for (let i = 0; i < this.bombs.length; i++) {
+      let bomb = this.bombs[i];
+      play.ctx.fillRect(bomb.x - 2, bomb.y, 4, 6); // die Bomben werden wie die Geschosse als farbiges Rechteck dargestellt 
+    }
+
 
   }
 
