@@ -13,6 +13,16 @@ export interface Falcon {
     y: number;
   }
 
+  export interface Tiefighter {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    line: number;
+    column: number;
+    tiefighter_image: HTMLImageElement;
+  }
+
 export class Objects {
     constructor() {}
   
@@ -22,5 +32,15 @@ export class Objects {
     }
     bullet(x: number, y: number): Bullet {
       return { x, y };
+    }
+    tiefighter(
+      x: number,
+      y: number,
+      line: number,
+      column: number,
+      tiefighter_image: HTMLImageElement
+    ): Tiefighter {
+      tiefighter_image.src = "images/tie-fighter.png";
+      return { x, y, line, width: 62, height: 66, column, tiefighter_image };
     }
 }

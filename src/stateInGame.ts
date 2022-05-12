@@ -1,6 +1,6 @@
 /// --- stateInGame --- ///
 import { GameBasics, GameSettings } from "./index";
-import { Falcon, Bullet, Objects as GameObjects } from "./objects";
+import { Falcon, Bullet, Objects as GameObjects, Tiefighter } from "./objects";
 
 export class InGameState {
   public setting: GameSettings;
@@ -11,6 +11,16 @@ export class InGameState {
   public falconSpeed: number = 0;
   public upSec: number = 0;
   public bullets: Bullet[];
+  public lastBulletTime: null | number;
+  public tiefighters: Tiefighter[];
+  public tiefighter_image: HTMLImageElement | null = null;
+  public tiefighterSpeed: number = 0;
+  public horizontalMoving: number = 1;
+  public verticalMoving: number = 0;
+  public tiefightersAreSinking: boolean = false;
+  public tiefighterPresentSinkingValue: number = 0;
+  public turnAround: number = 1;
+
 
 
 
@@ -19,30 +29,60 @@ export class InGameState {
     this.level = level;
     this.object = null;
     this.falcon = null;
-    this.bullets = [];
+    this.bullets = []; //die Bullets müssen in einem Array (dynamisch) zwischengespeichert werden, um sichtbar zu bleiben und werden nur
+    //dann mit splice gelöscht, wenn sie einen Tie-Fighter treffen oder den Rand des Canvas erreichen
+    this.lastBulletTime = null;
+    this.tiefighters = []; //die Tiefighter werden wie die Bullets in einem abstrakten Datentyp (array) gespeichert
   }
 
   entry(play: GameBasics) {
     this.falcon_image = new Image();
+    this.tiefighter_image = new Image();
     this.object = new GameObjects();
     this.upSec = this.setting.updateSeconds;
     this.falconSpeed = this.setting.falconSpeed;
+    this.horizontalMoving = 1; // es wird geprüft ob die Tiefighter sich gerade horizontal oder vertikal bewegen
+    this.verticalMoving = 0; // hierbei ist 1 = true & 0 = false
+    this.tiefightersAreSinking = false; // ist true, wenn sich die Flotte vertikal bewegt
+    this.tiefighterPresentSinkingValue = 0; // gibt an, wie viele Pixel sich die Flotte vertikal bewegen soll, s. index.ts --> Game Settings
+    this.turnAround = 1;
     this.falcon = this.object.falcon(
       play.width / 2,
       play.playBoundaries.bottom,
       this.falcon_image
     );
+    // Parameter, die mit Steigendem Level geändert werden (1. Tie-Fighter Geschwindigkeit, 2. Bomben-Abwurf Geschwindigkeit, 3. Bomben-Abwurf-Frequenz)
+    let presentLevel = this.level < 11 ? this.level : 10; // wir können nicht über Level 10 gehen
+    // 1. Tie-Fighter Geschwindigkeit
+    this.tiefighterSpeed = this.setting.tiefighterSpeed + presentLevel * 7; //Level1: 35 + (1*7) = 42, Level2: 42 + (2*7) = 59; .....
+    // Erstellen der Tie-Fighter-Flotte
+    const lines = this.setting.tiefighterLines;
+    const columns = this.setting.tiefighterColumns;
+    const tiefightersInitial = [];
+    let line, column;
+    for (line = 0; line < lines; line++) {
+      for (column = 0; column < columns; column++) {
+        this.object = new GameObjects(); // es werden soviele Objekte vom Typ tiefighter erstellt, wie benötigt werden um lines und columns aufzufüllen
+        let x, y;
+        x = play.width / 2 + column * 60 - (columns - 1) * 25;
+        y = play.playBoundaries.top + 30 + line * 60;
+        tiefightersInitial.push(
+          this.object.tiefighter(x, y, line, column, this.tiefighter_image)
+        );
+      }
+    }
+    this.tiefighters = tiefightersInitial;
   }
 
   update(play: GameBasics) {
     const falcon = this.falcon;
     const falconSpeed = this.falconSpeed;
     const upSec = this.setting.updateSeconds;
+    const bullets = this.bullets;
     if (!falcon) {
       return;
     }
     //Tastatur-Eingaben
-
     if (play.pressedKeys[37]) {
       falcon.x -= falconSpeed * upSec;
     }
@@ -60,13 +100,61 @@ export class InGameState {
     if (falcon.x > play.playBoundaries.right) { // Begrenzung rechts
       falcon.x = play.playBoundaries.right;
     }
-
+    // Sich bewegende Geschosse
+    for (let i = 0; i < bullets.length; i++) {
+      let bullet = bullets[i];
+      bullet.y -= upSec * this.setting.bulletSpeed;
+      // sollte die Kugel über das Canvas hinaus fliegen, verschwindet sie
+      if (bullet.y < 0) { // 0 ist der obere Rand des Canvas, die Kugeln können nur in diese Richtung fliegen, deshalb nur oben beachten
+        bullets.splice(i--, 1); // mit splice, werden die Bullets, die das Canvas verlassen, aus dem Array gelöscht
+      }
+    }
+    // Bewegungen der Tie-fighter
+    let reachedSide = false;
+    for (let i = 0; i < this.tiefighters.length; i++) {
+      let tiefighter = this.tiefighters[i];
+      let fresh_x =
+        tiefighter.x +
+        this.tiefighterSpeed * upSec * this.turnAround * this.horizontalMoving;
+      let fresh_y =
+        tiefighter.y + this.tiefighterSpeed * upSec * this.verticalMoving;
+        // wenn die x-Koordinate die rechte oder linke Seite des aktive Spielfelds berührt, wird die vertikale Bewegung auf 1 / true 
+        // gesetzt und die horizontale auf 0 / false, also Bewegen sich die Tiefighter nun vertikal und nicht mehr horizontal
+      if (
+        fresh_x > play.playBoundaries.right ||
+        fresh_x < play.playBoundaries.left
+      ) {
+        this.turnAround *= -1;
+        reachedSide = true;
+        this.horizontalMoving = 0;
+        this.verticalMoving = 1;
+        this.tiefightersAreSinking = true;
+      }
+      if (reachedSide !== true) {
+        tiefighter.x = fresh_x;
+        tiefighter.y = fresh_y;
+      }
+    }
+    // wenn "tiefightersAreSinking" = true gesetzt wird, wird dieser Code ausgeführt 
+    if (this.tiefightersAreSinking == true) {
+      this.tiefighterPresentSinkingValue += this.tiefighterSpeed * upSec; //Wert (Pixel), mit dem die Flotte aktuell sinkt
+      if (
+        this.tiefighterPresentSinkingValue >=
+        this.setting.tiefighterSinkingValue // wenn die Flotte um den Wert von 30px gesunken ist, den wir in den settings 
+        // vorgegeben haben, dann wird der folgenden Code ausgeführt 
+      ) {
+        this.tiefightersAreSinking = false; // wird auf false gesetzt, da die Flotte sich wieder horizontal bewegen und nicht weiter sinken soll
+        this.verticalMoving = 0; // false
+        this.horizontalMoving = 1; // true
+        this.tiefighterPresentSinkingValue = 0; // wird resettet und auf 0 reinitialisiert
+      }
+    }
   }
   shoot(play: GameBasics) {
     if (
-      (this.lastBulletTime === null ||
-        new Date().getTime() - this.lastBulletTime >
-        this.setting.bulletMaxFrequency) &&
+      (this.lastBulletTime === null || // LastBulletTime "null" bedeutet, dass noch nicht geschossen wurde
+        new Date().getTime() - this.lastBulletTime >// So wird sichergestellt, dass die maxBulletFrequency nicht überschritten wird und der User
+        this.setting.bulletMaxFrequency) && //nicht am Stück feuern kann, in dem kein neues Bullet-Objekt instanziert werden kann. 
       this.falcon
     ) {
       this.object = new GameObjects();
@@ -82,7 +170,7 @@ export class InGameState {
 
   draw(play: GameBasics) {
     play.ctx.clearRect(0, 0, play.width, play.height);
-    if (!this.falcon_image || !this.falcon) {
+    if (!this.falcon_image || !this.falcon || !this.tiefighter_image) {
       return;
     }
     play.ctx.drawImage(
@@ -90,12 +178,22 @@ export class InGameState {
       this.falcon.x - this.falcon.width / 2,
       this.falcon.y - this.falcon.height / 2
     );
-    //Geschosse werden erstellt
+    //Geschosse werden erstellt & sichtbar gemacht
     play.ctx.fillStyle = "#ff0000";
     for (let i = 0; i < this.bullets.length; i++) {
       let bullet = this.bullets[i];
       play.ctx.fillRect(bullet.x, bullet.y - 6, 2, 6);
     }
+    // Tie-Fighter werden erstellt
+    for (let i = 0; i < this.tiefighters.length; i++) {
+      let tiefighter = this.tiefighters[i]; //4 Reihen horizontal, 8 Reihen vertikal = 32 Tie-Fighters
+      play.ctx.drawImage(
+        this.tiefighter_image,
+        tiefighter.x - tiefighter.width / 2, //hier wird wieder der Mittelpunkt des jeweiligen Tiefighter-Objekts ausgerechnet 
+        tiefighter.y - tiefighter.height / 2
+      );
+    }
+
   }
 
   keyDown(play: GameBasics, keyboardCode: number) {

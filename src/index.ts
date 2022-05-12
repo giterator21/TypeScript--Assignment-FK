@@ -42,6 +42,11 @@ export interface GameSettings {
     falconSpeed: number;
     bulletSpeed: number; 
     bulletMaxFrequency: number;
+    tiefighterLines: number;
+    tiefighterColumns: number;
+    tiefighterSpeed: number;
+    tiefighterSinkingValue: number;
+
 }
 
 type State =
@@ -84,6 +89,10 @@ export class GameBasics {
             falconSpeed:200,
             bulletSpeed:130, // Geschwindigkeit der Kugel
             bulletMaxFrequency:500, // wie schnell der Falcon nacheinander feuern kann
+            tiefighterLines: 4, //Anzahl der horizontalen Reihen der Tiefightern 
+            tiefighterColumns: 8, //Anzahl der Tiefighter, die sich jeweils in einer Reihe befinden
+            tiefighterSpeed: 35, // Geschwindigkeit, mit der sich die Tiefighter bewegen sollen
+            tiefighterSinkingValue: 30, // Geschwindigkeit, mit der die Tiefighter sinken sollen = 30 Pixel
         };
         // Hier wird der aktuelle Zustand des Spiels zwischengespeichert (Pause, Start, inGame etc.)
         this.stateContainer = [];
@@ -191,6 +200,7 @@ window.addEventListener("keydown", (e: KeyboardEvent) => {
     play.keyUp(keyboardCode);
   });
   
+//Es wird ein neues Objekt vom Typ Game Basics erstellt 
 
 const play = new GameBasics(canvas, ctx);
 
