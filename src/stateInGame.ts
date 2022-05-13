@@ -1,7 +1,7 @@
 /// --- stateInGame --- ///
 import { GameBasics, GameSettings } from "./index";
 import { Falcon, Bullet, Bomb, Objects as GameObjects, Tiefighter } from "./objects";
-import {OpeningState} from "./stateOpening";
+import { OpeningState } from "./stateOpening";
 
 
 export class InGameState {
@@ -224,6 +224,8 @@ export class InGameState {
       //wenn eine Kollision existiert, wird der Tie-fighter gelöscht
       if (collision == true) {
         this.tiefighters.splice(i--, 1);
+        // Der Sound wird ausgespielt wenn ein Tie-fighter getroffen wird 
+        play.sounds.playSound("tiefighterDeath");
       }
     }
     //  Falcon wird von Bombe getroffen - Collision-Detector
@@ -238,20 +240,25 @@ export class InGameState {
       ) {
         //Steht eine Kollision im Raum, wird die Tie-Bombe aus dem Bomben-Array gelöscht und verschwindet
         this.bombs.splice(i--, 1);
+        // Der Explosions-Sound wird im Falle eines Bomben-Treffers ausgespielt 
+        play.sounds.playSound("explosion");
       }
     }
-        //Falcon und Tie-Fighter Kollision
-        for (let i = 0; i < this.tiefighters.length; i++) {
-          let tiefighter = this.tiefighters[i];
-          if (
-            tiefighter.x + tiefighter.width / 2 > falcon.x - falcon.width / 2 &&
-            tiefighter.x - tiefighter.width / 2 < falcon.x + falcon.width / 2 &&
-            tiefighter.y + tiefighter.height / 2 > falcon.y + falcon.height / 2 &&
-            tiefighter.y - tiefighter.height / 2 < falcon.y + falcon.height / 2
-          ) {
-          play.goToState(new OpeningState());
-        }
+    //Falcon und Tie-Fighter Kollision
+    for (let i = 0; i < this.tiefighters.length; i++) {
+      let tiefighter = this.tiefighters[i];
+      if (
+        tiefighter.x + tiefighter.width / 2 > falcon.x - falcon.width / 2 &&
+        tiefighter.x - tiefighter.width / 2 < falcon.x + falcon.width / 2 &&
+        tiefighter.y + tiefighter.height / 2 > falcon.y + falcon.height / 2 &&
+        tiefighter.y - tiefighter.height / 2 < falcon.y + falcon.height / 2
+      ) {
+        // im Falle einer direkten Kollision wird ein neues Objekt vom Typ "OpeningState" erstellt und das Spiel beginnt von vorne 
+        play.goToState(new OpeningState());
+        // Der Explosions-Sound wrid ausgespielt, wenn der Falcon mit einem der Tie-Fighter kollidiert
+        play.sounds.playSound("explosion");
       }
+    }
 
 
   }
@@ -270,6 +277,7 @@ export class InGameState {
         )
       );
       this.lastBulletTime = new Date().getTime();
+      play.sounds.playSound("shot");
     }
   }
 

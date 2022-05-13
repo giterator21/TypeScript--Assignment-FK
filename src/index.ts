@@ -1,6 +1,7 @@
 import { InGameState } from "./stateInGame";
 import { OpeningState } from "./stateOpening";
 import { TransferState } from "./stateTransfer";
+import { Sounds } from "./sounds";
 
 // Hier wird auf das Canvas "gameCanvas" aus der CSS-Datei über "getElementById" in TypeScript zugegriffen
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -40,13 +41,13 @@ interface Boundaries {
 export interface GameSettings {
     updateSeconds: number;
     falconSpeed: number;
-    bulletSpeed: number; 
+    bulletSpeed: number;
     bulletMaxFrequency: number;
     tiefighterLines: number;
     tiefighterColumns: number;
     tiefighterSpeed: number;
     tiefighterSinkingValue: number;
-    bombSpeed: number; 
+    bombSpeed: number;
     bombFrequency: number;
     pointsPerTIE: number;
 
@@ -68,6 +69,8 @@ export class GameBasics {
     public score: number;
     public shields: number;
     public pressedKeys: { [key: number]: boolean };
+    public sounds: Sounds;
+
 
     constructor(canvas: HTMLCanvasElement, public ctx: CanvasRenderingContext2D) {
         this.canvas = canvas;
@@ -89,9 +92,9 @@ export class GameBasics {
         //Standardeinstellungen des Spiels 
         this.setting = {
             updateSeconds: 1 / 60, // 60 FPS
-            falconSpeed:200,
-            bulletSpeed:130, // Geschwindigkeit der Kugel
-            bulletMaxFrequency:500, // wie schnell der Falcon nacheinander feuern kann
+            falconSpeed: 200,
+            bulletSpeed: 130, // Geschwindigkeit der Kugel
+            bulletMaxFrequency: 500, // wie schnell der Falcon nacheinander feuern kann
             tiefighterLines: 4, //Anzahl der horizontalen Reihen der Tiefightern 
             tiefighterColumns: 8, //Anzahl der Tiefighter, die sich jeweils in einer Reihe befinden
             tiefighterSpeed: 35, // Geschwindigkeit, mit der sich die Tiefighter bewegen sollen
@@ -102,11 +105,12 @@ export class GameBasics {
         };
         // Hier wird der aktuelle Zustand des Spiels zwischengespeichert (Pause, Start, inGame etc.)
         this.stateContainer = [];
-         // Zwischenspeicher für gedrückte Tasten innerhalb eines "{}" abstrakten Datentyps, Tasten werden als Integer gespeichert
-         this.pressedKeys = {};
-
+        // Zwischenspeicher für gedrückte Tasten innerhalb eines "{}" abstrakten Datentyps, Tasten werden als Integer gespeichert
+        this.pressedKeys = {};
+        this.sounds = new Sounds();
+        this.sounds.init();
     }
-    
+
 
     //  Gibt den aktuellen Status des Spiels wieder, in dem sich das Spiel gerade befindet. Gibt immer den obersten Wert aus dem stateContainer als return-Wert zurück.
     presentState() {
@@ -149,27 +153,27 @@ export class GameBasics {
         this.goToState(new OpeningState());
     }
 
-    
-  // Sagt dem Spiel, dass eine Taste gedrückt ist
-  keyDown(keyboardCode: number) {
-    // speichert die gedrückte Taste in "pressed Keys" zwischen
-    this.pressedKeys[keyboardCode] = true;
-    //es wird geprüft, ob der akutelle Status des Spiels eine eigene keyDown/keyUp-Funktion hat und ruft diese im Falle des Tastendrückens auf
-    let pos = this.presentState();
-    if (
-      pos &&
-      (pos instanceof InGameState ||
-        pos instanceof OpeningState)
-    ) {
-      pos.keyDown(this, keyboardCode);
+
+    // Sagt dem Spiel, dass eine Taste gedrückt ist
+    keyDown(keyboardCode: number) {
+        // speichert die gedrückte Taste in "pressed Keys" zwischen
+        this.pressedKeys[keyboardCode] = true;
+        //es wird geprüft, ob der akutelle Status des Spiels eine eigene keyDown/keyUp-Funktion hat und ruft diese im Falle des Tastendrückens auf
+        let pos = this.presentState();
+        if (
+            pos &&
+            (pos instanceof InGameState ||
+                pos instanceof OpeningState)
+        ) {
+            pos.keyDown(this, keyboardCode);
+        }
     }
-  }
 
     // Sagt dem Spiel, wenn eine Taste wieder losgelassen wird
     keyUp(keyboardCode: number) {
         //die losgelassene Taste aus "pressedKeys" löschen
         delete this.pressedKeys[keyboardCode];
-      }
+    }
 
 }
 
@@ -196,16 +200,16 @@ function gameLoop(play: GameBasics) {
 window.addEventListener("keydown", (e: KeyboardEvent) => {
     const keyboardCode = e.which || e.keyCode; // Je nach Browsersupport wird "which" oder "keyCode" verwendet
     if (keyboardCode == 37 || keyboardCode == 39 || keyboardCode == 32) {
-      e.preventDefault();
+        e.preventDefault();
     } //Leertaste/Links/Rechts// (32/37/29) KeyboardCode wird als Datentyp Integer zwischengespeichert
     play.keyDown(keyboardCode);
-  });
-  
-  window.addEventListener("keyup", function (e) {
-    const keyboardCode = e.which || e.keyCode; 
+});
+
+window.addEventListener("keyup", function (e) {
+    const keyboardCode = e.which || e.keyCode;
     play.keyUp(keyboardCode);
-  });
-  
+});
+
 //Es wird ein neues Objekt vom Typ Game Basics erstellt 
 
 const play = new GameBasics(canvas, ctx);
