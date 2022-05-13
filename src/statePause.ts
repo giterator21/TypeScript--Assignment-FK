@@ -1,7 +1,7 @@
 // --- statePause --- //
 
 import {GameBasics} from "./index";
-import { OpeningState } from "./stateOpening";
+import {GameOverState} from "./stateGameOver";
 
 export class PauseState {
     constructor() {}
@@ -51,7 +51,7 @@ export class PauseState {
       }
       if (keyboardCode === 27) {
         // Spiel verlassen: ESC
-        play.pushState(new OpeningState());
+        play.pushState(new GameOverState());
       }
     }
   }

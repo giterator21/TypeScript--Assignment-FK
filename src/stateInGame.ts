@@ -4,6 +4,7 @@ import { Falcon, Bullet, Bomb, Objects as GameObjects, Tiefighter } from "./obje
 import { OpeningState } from "./stateOpening";
 import { PauseState } from "./statePause";
 import { TransferState } from "./stateTransfer";
+import {GameOverState} from "./stateGameOver";
 
 export class InGameState {
   public setting: GameSettings;
@@ -268,9 +269,9 @@ export class InGameState {
       play.level += 1;
       play.goToState(new TransferState(play.level)); //über den transferState wird das nächst höhere Level initialisiert
     }
+    // wenn 0 Shields vorhanden sind und noch ein weiterer Treffer erfolgt, dann Game Over
     if (play.shields < 0) {
-      // wenn 0 Shields vorhanden sind und noch ein weiterer Treffer erfolgt, dann Game Over
-      play.goToState(new OpeningState());
+      play.goToState(new GameOverState());
     }
 
 

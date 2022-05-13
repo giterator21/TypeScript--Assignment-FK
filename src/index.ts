@@ -3,6 +3,7 @@ import { OpeningState } from "./stateOpening";
 import { TransferState } from "./stateTransfer";
 import { Sounds } from "./sounds";
 import {PauseState} from "./statePause";
+import {GameOverState} from "./stateGameOver";
 
 
 // Hier wird auf das Canvas "gameCanvas" aus der CSS-Datei über "getElementById" in TypeScript zugegriffen
@@ -59,7 +60,8 @@ type State =
     | TransferState
     | InGameState
     | OpeningState
-    | PauseState;
+    | PauseState
+    | GameOverState;
 
 export class GameBasics {
     public canvas: HTMLCanvasElement;
@@ -167,7 +169,8 @@ export class GameBasics {
             pos &&
             (pos instanceof InGameState ||
                 pos instanceof OpeningState ||
-                pos instanceof PauseState)
+                pos instanceof PauseState ||
+                pos instanceof GameOverState)
         ) {
             pos.keyDown(this, keyboardCode);
         }
