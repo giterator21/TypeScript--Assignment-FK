@@ -3,7 +3,7 @@ import { GameBasics, GameSettings } from "./index";
 import { Falcon, Bullet, Bomb, Objects as GameObjects, Tiefighter } from "./objects";
 import { OpeningState } from "./stateOpening";
 import { PauseState } from "./statePause";
-import {TransferState} from "./stateTransfer";
+import { TransferState } from "./stateTransfer";
 
 export class InGameState {
   public setting: GameSettings;
@@ -243,6 +243,7 @@ export class InGameState {
         this.bombs.splice(i--, 1);
         // Der Explosions-Sound wird im Falle eines Bomben-Treffers ausgespielt 
         play.sounds.playSound("explosion");
+        play.shields--; // // je Treffer/Kollision wird der Shield-Wert um 1 verringert
       }
     }
     //Falcon und Tie-Fighter Kollision
@@ -254,18 +255,23 @@ export class InGameState {
         tiefighter.y + tiefighter.height / 2 > falcon.y + falcon.height / 2 &&
         tiefighter.y - tiefighter.height / 2 < falcon.y + falcon.height / 2
       ) {
-        // im Falle einer direkten Kollision wird ein neues Objekt vom Typ "OpeningState" erstellt und das Spiel beginnt von vorne 
-        play.goToState(new OpeningState());
         // Der Explosions-Sound wrid ausgespielt, wenn der Falcon mit einem der Tie-Fighter kollidiert
         play.sounds.playSound("explosion");
+        // im Falle einer direkten Kollision wird ein neues Objekt vom Typ "OpeningState" erstellt und das Spiel beginnt von vorne 
+        play.goToState(new OpeningState());
+        play.shields = -1; // bei Kollision mit einem TieFighter ist der Falcon direkt ausser Gefecht
       }
     }
-        // Level gemeistert
-        if (this.tiefighters.length == 0) {
-          // alle Tie-Fighter abgeschossen! --> neues Level beginnt
-          play.level += 1;
-          play.goToState(new TransferState(play.level)); //über den transferState wird das nächst höhere Level initialisiert
-        }
+    // Level gemeistert
+    if (this.tiefighters.length == 0) {
+      // alle Tie-Fighter abgeschossen! --> neues Level beginnt
+      play.level += 1;
+      play.goToState(new TransferState(play.level)); //über den transferState wird das nächst höhere Level initialisiert
+    }
+    if (play.shields < 0) {
+      // wenn 0 Shields vorhanden sind und noch ein weiterer Treffer erfolgt, dann Game Over
+      play.goToState(new OpeningState());
+    }
 
 
   }
@@ -371,6 +377,37 @@ export class InGameState {
       play.playBoundaries.left,
       play.playBoundaries.top - 25
     );
+    // verfügbare Schulde grafisch anzeigen
+    play.ctx.textAlign = "center";
+    if (play.shields > 0) { // wenn mehr als 0 Schilde vorhanden sind, wird die aktuelle Anzahl angezeigt --> beachten 0-basiertes System
+      play.ctx.fillStyle = "#BDBDBD";
+      play.ctx.font = "bold 24px Comic Sans MS";
+      play.ctx.fillText(
+        "Schutzschilde",
+        play.width / 2,
+        play.playBoundaries.top - 75
+      );
+      play.ctx.font = "bold 30px Comic Sans MS";
+      play.ctx.fillText(
+        play.shields.toString(),
+        play.width / 2,
+        play.playBoundaries.top - 25
+      );
+    } else { // anderenfalls, wenn 0 Schilde vorhanden  = noch 1 Leben übrig, wird ein anderer Text angezeigt
+      play.ctx.fillStyle = "#ff4d4d";
+      play.ctx.font = "bold 24px Comic Sans MS";
+      play.ctx.fillText(
+        "WARNUNG",
+        play.width / 2,
+        play.playBoundaries.top - 75
+      );
+      play.ctx.fillStyle = "#BDBDBD";
+      play.ctx.fillText(
+        "Keine Schilde übrig!",
+        play.width / 2,
+        play.playBoundaries.top - 25
+      );
+    }
   }
   keyDown(play: GameBasics, keyboardCode: number) {
     if (keyboardCode == 83) {

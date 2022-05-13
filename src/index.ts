@@ -4,6 +4,7 @@ import { TransferState } from "./stateTransfer";
 import { Sounds } from "./sounds";
 import {PauseState} from "./statePause";
 
+
 // Hier wird auf das Canvas "gameCanvas" aus der CSS-Datei über "getElementById" in TypeScript zugegriffen
 const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 canvas.width = 900;

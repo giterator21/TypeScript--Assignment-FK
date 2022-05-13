@@ -54,6 +54,7 @@ export class OpeningState{
           //User drückt Leertaste
           play.level = 1;
           play.score = 0;
+          play.shields = 2;
           play.goToState(new TransferState(play.level)); // muss erst level von Transfer State bekommen
         }
       }
