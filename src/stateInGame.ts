@@ -1,6 +1,8 @@
 /// --- stateInGame --- ///
 import { GameBasics, GameSettings } from "./index";
 import { Falcon, Bullet, Bomb, Objects as GameObjects, Tiefighter } from "./objects";
+import {OpeningState} from "./stateOpening";
+
 
 export class InGameState {
   public setting: GameSettings;
@@ -198,6 +200,58 @@ export class InGameState {
         this.bombs.splice(i--, 1);
       }
     }
+    // Tie-Abschuss Collision-Detector - verschachtelte for-Schleife
+    for (let i = 0; i < this.tiefighters.length; i++) {
+      let tiefighter = this.tiefighters[i];
+      let collision = false;
+      for (let j = 0; j < bullets.length; j++) {
+        let bullet = bullets[j];
+        //Kollision wird überprüft
+        if (
+          // Kollisionn einer Kugel mit einem Tiefighter jeweils an der linken, rechten, oberen, unteren Seite
+          bullet.x >= tiefighter.x - tiefighter.width / 2 &&
+          bullet.x <= tiefighter.x + tiefighter.width / 2 &&
+          bullet.y >= tiefighter.y - tiefighter.height / 2 &&
+          bullet.y <= tiefighter.y + tiefighter.height / 2
+        ) {
+          // falls eine Kollision im Raum steht, wird Kollision auf "true", löst die untere Funktion aus und die Kugel wird mit 
+          // "splice" aus dem Bullet-Array gelöscht
+          bullets.splice(j--, 1);
+          collision = true;
+          play.score += this.setting.pointsPerTIE;
+        }
+      }
+      //wenn eine Kollision existiert, wird der Tie-fighter gelöscht
+      if (collision == true) {
+        this.tiefighters.splice(i--, 1);
+      }
+    }
+    //  Falcon wird von Bombe getroffen - Collision-Detector
+    for (let i = 0; i < this.bombs.length; i++) {
+      let bomb = this.bombs[i];
+      if (
+        // Kollisionn einer Bombe mit dem Falcon jeweils an der linken, rechten, oberen, unteren Seite
+        bomb.x + 1 >= falcon.x - falcon.width / 2 &&
+        bomb.x - 5 <= falcon.x + falcon.width / 2 &&
+        bomb.y + 90 >= falcon.y + falcon.height / 2 &&
+        bomb.y <= falcon.y + falcon.height / 2
+      ) {
+        //Steht eine Kollision im Raum, wird die Tie-Bombe aus dem Bomben-Array gelöscht und verschwindet
+        this.bombs.splice(i--, 1);
+      }
+    }
+        //Falcon und Tie-Fighter Kollision
+        for (let i = 0; i < this.tiefighters.length; i++) {
+          let tiefighter = this.tiefighters[i];
+          if (
+            tiefighter.x + tiefighter.width / 2 > falcon.x - falcon.width / 2 &&
+            tiefighter.x - tiefighter.width / 2 < falcon.x + falcon.width / 2 &&
+            tiefighter.y + tiefighter.height / 2 > falcon.y + falcon.height / 2 &&
+            tiefighter.y - tiefighter.height / 2 < falcon.y + falcon.height / 2
+          ) {
+          play.goToState(new OpeningState());
+        }
+      }
 
 
   }
