@@ -319,6 +319,8 @@ export class InGameState {
   }
 
   keyDown(play: GameBasics, keyboardCode: number) {
-
+    if (keyboardCode == 83) {
+      play.sounds.mute(); // Sound muten wenn S gedrückt wird / Integer 83 steht für S auf Tastatur
+    }
   }
 }
