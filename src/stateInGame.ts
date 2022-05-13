@@ -2,7 +2,8 @@
 import { GameBasics, GameSettings } from "./index";
 import { Falcon, Bullet, Bomb, Objects as GameObjects, Tiefighter } from "./objects";
 import { OpeningState } from "./stateOpening";
-
+import { PauseState } from "./statePause";
+import {TransferState} from "./stateTransfer";
 
 export class InGameState {
   public setting: GameSettings;
@@ -259,6 +260,12 @@ export class InGameState {
         play.sounds.playSound("explosion");
       }
     }
+        // Level gemeistert
+        if (this.tiefighters.length == 0) {
+          // alle Tie-Fighter abgeschossen! --> neues Level beginnt
+          play.level += 1;
+          play.goToState(new TransferState(play.level)); //über den transferState wird das nächst höhere Level initialisiert
+        }
 
 
   }
@@ -314,13 +321,63 @@ export class InGameState {
       let bomb = this.bombs[i];
       play.ctx.fillRect(bomb.x - 2, bomb.y, 4, 6); // die Bomben werden wie die Geschosse als farbiges Rechteck dargestellt 
     }
-
-
+    // Laut & Leise Info anzeigen
+    play.ctx.font = "16px Comic Sans MS";
+    play.ctx.fillStyle = "#BDBDBD";
+    play.ctx.textAlign = "left";
+    play.ctx.fillText(
+      "Drücke S um Sound AN/AUS zu schalten.  Sound:",
+      play.playBoundaries.left,
+      play.playBoundaries.bottom + 70
+    );
+    let soundStatus = play.sounds.muted ? "AUS" : "AN";
+    play.ctx.fillStyle = play.sounds.muted ? "#FF0000" : "#0B6121";
+    play.ctx.fillText(
+      soundStatus,
+      play.playBoundaries.left + 375,
+      play.playBoundaries.bottom + 70
+    );
+    play.ctx.fillStyle = "#BDBDBD";
+    play.ctx.textAlign = "right";
+    play.ctx.fillText(
+      "Drücke P um das Spiel zu pausieren.",
+      play.playBoundaries.right,
+      play.playBoundaries.bottom + 70
+    );
+    //Dem Spieler score und level grafisch anzeigen
+    play.ctx.textAlign = "center";
+    play.ctx.fillStyle = "#BDBDBD";
+    play.ctx.font = "bold 24px Comic Sans MS";
+    play.ctx.fillText(
+      "Score",
+      play.playBoundaries.right,
+      play.playBoundaries.top - 75
+    );
+    play.ctx.font = "bold 30px Comic Sans MS";
+    play.ctx.fillText(
+      play.score.toString(),
+      play.playBoundaries.right,
+      play.playBoundaries.top - 25
+    );
+    play.ctx.font = "bold 24px Comic Sans MS";
+    play.ctx.fillText(
+      "Level",
+      play.playBoundaries.left,
+      play.playBoundaries.top - 75
+    );
+    play.ctx.font = "bold 30px Comic Sans MS";
+    play.ctx.fillText(
+      play.level.toString(),
+      play.playBoundaries.left,
+      play.playBoundaries.top - 25
+    );
   }
-
   keyDown(play: GameBasics, keyboardCode: number) {
     if (keyboardCode == 83) {
       play.sounds.mute(); // Sound muten wenn S gedrückt wird / Integer 83 steht für S auf Tastatur
+    }
+    if (keyboardCode == 80) {
+      play.pushState(new PauseState()); // In den Pause-Bildschirm moven wenn P gedrückt wird / Integer 80 steht für P auf Tastatur
     }
   }
 }
