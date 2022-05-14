@@ -351,33 +351,9 @@ export class InGameState {
       play.playBoundaries.right,
       play.playBoundaries.bottom + 70
     );
-    //Dem Spieler score und level grafisch anzeigen
-    play.ctx.textAlign = "center";
-    play.ctx.fillStyle = "#BDBDBD";
-    play.ctx.font = "bold 24px Comic Sans MS";
-    play.ctx.fillText(
-      "Score",
-      play.playBoundaries.right,
-      play.playBoundaries.top - 75
-    );
-    play.ctx.font = "bold 30px Comic Sans MS";
-    play.ctx.fillText(
-      play.score.toString(),
-      play.playBoundaries.right,
-      play.playBoundaries.top - 25
-    );
-    play.ctx.font = "bold 24px Comic Sans MS";
-    play.ctx.fillText(
-      "Level",
-      play.playBoundaries.left,
-      play.playBoundaries.top - 75
-    );
-    play.ctx.font = "bold 30px Comic Sans MS";
-    play.ctx.fillText(
-      play.level.toString(),
-      play.playBoundaries.left,
-      play.playBoundaries.top - 25
-    );
+    //Dem Spieler Score und Level grafisch anzeigen
+    this.renderScore(play);
+    this.renderLevel(play);
     // verfügbare Schulde grafisch anzeigen
     play.ctx.textAlign = "center";
     if (play.shields > 0) { // wenn mehr als 0 Schilde vorhanden sind, wird die aktuelle Anzahl angezeigt --> beachten 0-basiertes System
@@ -417,5 +393,14 @@ export class InGameState {
     if (keyboardCode == 80) {
       play.pushState(new PauseState()); // In den Pause-Bildschirm moven wenn P gedrückt wird / Integer 80 steht für P auf Tastatur
     }
+  }
+  renderLevel(play: GameBasics){
+    const div = document.getElementById("level") as HTMLDivElement;
+    div.innerText = `Level: ${play.level}`;
+  }
+
+  renderScore(play: GameBasics){
+    const div = document.getElementById("score") as HTMLDivElement;
+    div.innerText = `Score: ${play.score}`;
   }
 }

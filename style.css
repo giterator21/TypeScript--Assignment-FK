@@ -8,6 +8,23 @@
     background-size: 100% 100%;
 
 }
+#score,
+#level {
+    color: #BDBDBD;
+    font-family: "Comic Sans MS", sans-serif;
+    position: absolute;
+    font-size: 30px;
+}
+
+#score {
+    top: 75px;
+    right: 450px;
+}
+
+#level {
+    top: 75px;
+    left: 450px;
+}
 body {
     background-image: url("../images/background.jpg");
     background-repeat: no-repeat;
