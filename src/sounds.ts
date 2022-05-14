@@ -1,4 +1,4 @@
-// --- sound.js --- //
+/// --- sounds --- ///
 
 export class Sounds {
     public muted: boolean = false;

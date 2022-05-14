@@ -29,10 +29,6 @@ export class InGameState {
   public bombFrequency: number = 0;
 
 
-
-
-
-
   constructor(setting: GameSettings, level: number) {
     this.setting = setting;
     this.level = level;
@@ -330,7 +326,7 @@ export class InGameState {
     }
     // Laut & Leise Info anzeigen
     play.ctx.font = "16px Comic Sans MS";
-    play.ctx.fillStyle = "#BDBDBD";
+    play.ctx.fillStyle = "#ffffff";
     play.ctx.textAlign = "left";
     play.ctx.fillText(
       "Drücke S um Sound AN/AUS zu schalten.  Sound:",
@@ -344,7 +340,7 @@ export class InGameState {
       play.playBoundaries.left + 375,
       play.playBoundaries.bottom + 70
     );
-    play.ctx.fillStyle = "#BDBDBD";
+    play.ctx.fillStyle = "#ffffff";
     play.ctx.textAlign = "right";
     play.ctx.fillText(
       "Drücke P um das Spiel zu pausieren.",
@@ -357,7 +353,7 @@ export class InGameState {
     // verfügbare Schulde grafisch anzeigen
     play.ctx.textAlign = "center";
     if (play.shields > 0) { // wenn mehr als 0 Schilde vorhanden sind, wird die aktuelle Anzahl angezeigt --> beachten 0-basiertes System
-      play.ctx.fillStyle = "#BDBDBD";
+      play.ctx.fillStyle = "#ffffff";
       play.ctx.font = "bold 24px Comic Sans MS";
       play.ctx.fillText(
         "Schutzschilde",
@@ -378,7 +374,7 @@ export class InGameState {
         play.width / 2,
         play.playBoundaries.top - 75
       );
-      play.ctx.fillStyle = "#BDBDBD";
+      play.ctx.fillStyle = "#ffffff";
       play.ctx.fillText(
         "Keine Schilde übrig!",
         play.width / 2,

@@ -1,4 +1,4 @@
-// --- stateOpening --- //
+/// --- stateOpening --- ///
 
 import { GameBasics } from "./index";
 import { TransferState } from "./stateTransfer";
@@ -31,7 +31,7 @@ export class OpeningState {
       play.height / 2 + 50
     );
     // Die Spiel-Steuerung soll angezeigt werden
-    play.ctx.fillStyle = "#D7DF01";
+    play.ctx.fillStyle = "#ffffff";
     play.ctx.font = "35px Helvetica";
     play.ctx.fillText("Spiel-Steuerung", play.width / 2, play.height / 2 + 190);
     play.ctx.font = "25px Helvetica";

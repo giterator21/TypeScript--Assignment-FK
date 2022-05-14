@@ -1,3 +1,5 @@
+/// --- index --- ///
+
 import { InGameState } from "./stateInGame";
 import { OpeningState } from "./stateOpening";
 import { TransferState } from "./stateTransfer";

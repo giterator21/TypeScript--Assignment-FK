@@ -1,4 +1,4 @@
-// --- stateGameOver --- //
+/// --- stateGameOver --- ///
 
 import {GameBasics} from "./index";
 import {OpeningState} from "./stateOpening";

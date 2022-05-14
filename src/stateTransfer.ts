@@ -1,4 +1,4 @@
-// --- stateInTransfer--- //
+/// --- stateInTransfer --- ///
 
 import {GameBasics} from "./index";
 import {InGameState} from "./stateInGame";
