@@ -6,7 +6,7 @@ import { TransferState } from "./stateTransfer";
 export class OpeningState {
   constructor() { }
   draw(play: GameBasics) {
-    // Falcon erstellen
+    // Game Canvas wird mit Clear rect zurückgesetzt, ist dann leer, und kann dann mit beschrieben werden
     play.ctx.clearRect(0, 0, play.width, play.height); // Alle Inhalte auf dem Canvas werden mit "clearRect" gelöscht 
     play.ctx.font = "100px Starjhol";
     play.ctx.textAlign = "center";
@@ -20,7 +20,7 @@ export class OpeningState {
     gradient.addColorStop(0.5, "red");
     gradient.addColorStop(1.0, "yellow");
     play.ctx.fillStyle = gradient;
-    play.ctx.fillText("T i E - Hunter", play.width / 2, play.height / 2 - 150);
+    play.ctx.fillText("F A L C 0 N i C", play.width / 2, play.height / 2 - 150);
 
     // "Leertaste drücken um zu starten" soll angezeigt werden
     play.ctx.font = "50px Helvetica";

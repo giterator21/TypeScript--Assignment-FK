@@ -17,7 +17,7 @@ export class Sounds {
       for (let i = 0; i < this.soundsSource.length; i++) {
         this.allSounds[i] = new Audio();
         this.allSounds[i].src = this.soundsSource[i];
-        this.allSounds[i].setAttribute("preload", "auto");
+        this.allSounds[i].setAttribute("preload", "auto"); //preload lässt Sounds direkt laden, wenn die Seite aufgerufen wird
       }
     }
   
@@ -39,8 +39,9 @@ export class Sounds {
           soundNumber = 2;
           break;
       }
-      this.allSounds[soundNumber].play();
-      this.allSounds[soundNumber].currentTime = 0;
+      this.allSounds[soundNumber].play(); 
+      this.allSounds[soundNumber].currentTime = 0; // der Sound wird immer wieder von vorne abgespielt, solange die Taste gedrückt wird
+      // andernfalls würde das ganze mp3 abgespielt werden, bis es sich wiederholt, obwohl in der Zwischenzeit mehrmals geschossen wurde
     }
   
     mute() {
